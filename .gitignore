@@ -1,0 +1,50 @@
+# ──────────────────────────────────────────────
+# veron-hsc .gitignore
+# ──────────────────────────────────────────────
+
+# Conda / Python environment
+veron-hsc/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_metadata
+
+# ──────────────────────────────────────────────
+# Large data — AF3 outputs (67 MB+)
+# ──────────────────────────────────────────────
+# Raw AF3 result zips and extracted model files (CIFs, full_data JSONs, MSAs)
+# are too large for version control. Regenerate by re-downloading from AF3 Server
+# and running: python scripts/ingest_results.py
+results/af3_outputs/
+
+# ──────────────────────────────────────────────
+# Tracked outputs (do NOT ignore these)
+# ──────────────────────────────────────────────
+# results/screening_results.csv
+# results/veron_prioritized_leads.csv
+# results/figures/stealth_vs_affinity.png
+# results/presentation/veron_discovery_deck.md
+# results/leads/CH02_V10A_profile.md
+# results/leads/CH02_V10A_analysis.json
+# results/veron_master_manifest.json
+# results/af3_inputs/*.json
+
+# Claude Code internal state
+.claude/

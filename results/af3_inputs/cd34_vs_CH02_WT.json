@@ -1,0 +1,20 @@
+[
+  {
+    "name": "cd34_vs_CH02_WT",
+    "modelSeeds": [],
+    "sequences": [
+      {
+        "proteinChain": {
+          "sequence": "STSLATSPTKPYTSSSPILSDIKAEIKCSGIREVKLTQGICLEQNKTSSCAEFKKDRGEGLARVLCGEEQADADAGAQVCSLLLAQSEVRPQCLLLVLANRTEISSKLQLMKKHQSDLKKLGILDFTEQDVASHQSYSQKT",
+          "count": 1
+        }
+      },
+      {
+        "proteinChain": {
+          "sequence": "THRPPMWSPVWP",
+          "count": 1
+        }
+      }
+    ]
+  }
+]

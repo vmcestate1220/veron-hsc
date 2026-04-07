@@ -1,0 +1,221 @@
+{
+  "binding_pocket": [
+    {
+      "seq_id": 21,
+      "resname": "ASP",
+      "one_letter": "D",
+      "min_dist_A": 3.13
+    },
+    {
+      "seq_id": 22,
+      "resname": "ILE",
+      "one_letter": "I",
+      "min_dist_A": 1.79
+    },
+    {
+      "seq_id": 23,
+      "resname": "LYS",
+      "one_letter": "K",
+      "min_dist_A": 2.75
+    },
+    {
+      "seq_id": 24,
+      "resname": "ALA",
+      "one_letter": "A",
+      "min_dist_A": 2.79
+    },
+    {
+      "seq_id": 25,
+      "resname": "GLU",
+      "one_letter": "E",
+      "min_dist_A": 2.91
+    },
+    {
+      "seq_id": 26,
+      "resname": "ILE",
+      "one_letter": "I",
+      "min_dist_A": 3.72
+    },
+    {
+      "seq_id": 54,
+      "resname": "LYS",
+      "one_letter": "K",
+      "min_dist_A": 3.59
+    },
+    {
+      "seq_id": 58,
+      "resname": "GLY",
+      "one_letter": "G",
+      "min_dist_A": 4.58
+    },
+    {
+      "seq_id": 59,
+      "resname": "GLU",
+      "one_letter": "E",
+      "min_dist_A": 4.26
+    }
+  ],
+  "pose_comparison": {
+    "v10a": [
+      {
+        "pos": 1,
+        "aa": "T",
+        "min_dist_A": 10.88
+      },
+      {
+        "pos": 2,
+        "aa": "H",
+        "min_dist_A": 6.55
+      },
+      {
+        "pos": 3,
+        "aa": "R",
+        "min_dist_A": 3.99
+      },
+      {
+        "pos": 4,
+        "aa": "P",
+        "min_dist_A": 4.18
+      },
+      {
+        "pos": 5,
+        "aa": "P",
+        "min_dist_A": 3.17
+      },
+      {
+        "pos": 6,
+        "aa": "M",
+        "min_dist_A": 1.79
+      },
+      {
+        "pos": 7,
+        "aa": "W",
+        "min_dist_A": 3.18
+      },
+      {
+        "pos": 8,
+        "aa": "S",
+        "min_dist_A": 2.79
+      },
+      {
+        "pos": 9,
+        "aa": "P",
+        "min_dist_A": 3.59
+      },
+      {
+        "pos": 10,
+        "aa": "A",
+        "min_dist_A": 2.8
+      },
+      {
+        "pos": 11,
+        "aa": "W",
+        "min_dist_A": 2.86
+      },
+      {
+        "pos": 12,
+        "aa": "P",
+        "min_dist_A": 5.04
+      }
+    ],
+    "wt": [
+      {
+        "pos": 1,
+        "aa": "T",
+        "min_dist_A": 6.05
+      },
+      {
+        "pos": 2,
+        "aa": "H",
+        "min_dist_A": 3.1
+      },
+      {
+        "pos": 3,
+        "aa": "R",
+        "min_dist_A": 4.86
+      },
+      {
+        "pos": 4,
+        "aa": "P",
+        "min_dist_A": 4.41
+      },
+      {
+        "pos": 5,
+        "aa": "P",
+        "min_dist_A": 3.04
+      },
+      {
+        "pos": 6,
+        "aa": "M",
+        "min_dist_A": 5.7
+      },
+      {
+        "pos": 7,
+        "aa": "W",
+        "min_dist_A": 3.32
+      },
+      {
+        "pos": 8,
+        "aa": "S",
+        "min_dist_A": 2.74
+      },
+      {
+        "pos": 9,
+        "aa": "P",
+        "min_dist_A": 2.89
+      },
+      {
+        "pos": 10,
+        "aa": "V",
+        "min_dist_A": 3.41
+      },
+      {
+        "pos": 11,
+        "aa": "W",
+        "min_dist_A": 2.21
+      },
+      {
+        "pos": 12,
+        "aa": "P",
+        "min_dist_A": 5.17
+      }
+    ]
+  },
+  "global_stealth": {
+    "allele_results": [
+      {
+        "allele": "HLA-A*01:01",
+        "n_9mers": 4,
+        "n_hits": 0,
+        "worst_ic50_nM": 26696.07,
+        "worst_peptide": "RPPMWSPAW",
+        "flagged": false
+      },
+      {
+        "allele": "HLA-A*02:01",
+        "n_9mers": 4,
+        "n_hits": 0,
+        "worst_ic50_nM": 21566.42,
+        "worst_peptide": "HRPPMWSPA",
+        "flagged": false
+      },
+      {
+        "allele": "HLA-B*07:02",
+        "n_9mers": 4,
+        "n_hits": 1,
+        "worst_ic50_nM": 463.34,
+        "worst_peptide": "RPPMWSPAW",
+        "flagged": true
+      },
+      {
+        "allele": "HLA-C*07:01",
+        "n_9mers": 4,
+        "n_hits": 1,
+        "worst_ic50_nM": 449.25,
+        "worst_peptide": "HRPPMWSPA",
+        "flagged": true
+      }
+    ],
+    "overall_stealth": false
+  }
+}
