@@ -12,7 +12,7 @@ Computational optimization of the CH02 peptide motif for CD34+ hematopoietic ste
 | iPTM | **0.490** | 0.350 | +40% |
 | MWSP Motif Distance | **4.1 Å** | 5.3 Å | 1.2 Å closer |
 | Met6 Burial Depth | **1.79 Å** | 5.70 Å | 3.91 Å deeper |
-| HLA-C\*07:01 IC50 | **449 nM** | 117 nM | 3.8× less immunogenic |
+| HLA-C\*07:01 IC50 | **449 nM** | — | Borderline (threshold 500 nM) |
 | HLA-A Stealth | Clean | Clean | — |
 
 The single Val→Ala mutation eliminates a C-terminal steric clash, triggering a backbone pivot that buries the MWSP pharmacophore 3.91 Å deeper into the CD34 receptor surface — converting a shallow, uniform binding mode into a polarized, motif-anchored pose.
