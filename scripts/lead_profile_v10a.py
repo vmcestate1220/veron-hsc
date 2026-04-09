@@ -21,6 +21,8 @@ import numpy as np
 import pandas as pd
 from mhcflurry import Class1PresentationPredictor
 
+from scripts.utils import AA3TO1, parse_cif_atoms
+
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 AF3_OUT_DIR = os.path.join(PROJECT_ROOT, "results", "af3_outputs")
 
@@ -37,15 +39,6 @@ WT_SEQ   = "THRPPMWSPVWP"   # Wild type
 BINDING_MOTIF = "MWSP"
 CONTACT_CUTOFF = 5.0  # Angstroms
 
-# Receptor residue 1-141 maps to original CD34 150-290
-# Three-letter to one-letter
-AA3TO1 = {
-    "ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C",
-    "GLN": "Q", "GLU": "E", "GLY": "G", "HIS": "H", "ILE": "I",
-    "LEU": "L", "LYS": "K", "MET": "M", "PHE": "F", "PRO": "P",
-    "SER": "S", "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V",
-}
-
 # Global HLA panel for stealth expansion
 GLOBAL_HLA_PANEL = [
     "HLA-A*01:01",  # original screening allele
@@ -54,39 +47,6 @@ GLOBAL_HLA_PANEL = [
     "HLA-C*07:01",  # common Class I allele
 ]
 IC50_THRESHOLD = 500  # nM
-
-
-# ──────────────────────────────────────────────
-# CIF Parsing — all heavy atoms
-# ──────────────────────────────────────────────
-def parse_cif_all_atoms(cif_path):
-    """
-    Parse ALL heavy atoms from AF3 mmCIF (18-column format).
-
-    Returns dict: {chain_id: [(atom_id, atom_name, resname, seq_id, xyz), ...]}
-    """
-    chains = defaultdict(list)
-    with open(cif_path) as f:
-        for line in f:
-            if not line.startswith("ATOM"):
-                continue
-            parts = line.split()
-            if len(parts) < 13:
-                continue
-
-            atom_serial = int(parts[1])
-            atom_name = parts[3]
-            resname = parts[5]   # label_comp_id
-            chain = parts[6]     # label_asym_id
-            seq_id = int(parts[8])  # label_seq_id
-            x = float(parts[10])
-            y = float(parts[11])
-            z = float(parts[12])
-
-            chains[chain].append(
-                (atom_serial, atom_name, resname, seq_id, np.array([x, y, z]))
-            )
-    return dict(chains)
 
 
 # ──────────────────────────────────────────────
@@ -109,7 +69,7 @@ def find_binding_pocket(cif_path, ligand_seq, motif=BINDING_MOTIF, cutoff=CONTAC
     # 1-indexed residue IDs for the motif residues
     motif_ids = set(range(motif_pos + 1, motif_pos + 1 + len(motif)))
 
-    chains = parse_cif_all_atoms(cif_path)
+    chains = parse_cif_atoms(cif_path, ca_only=False)
     if "A" not in chains or "B" not in chains:
         return [], 0, 0
 
@@ -153,7 +113,7 @@ def per_residue_contacts(cif_path, ligand_seq, cutoff=CONTACT_CUTOFF):
 
     Returns list of (seq_id, resname, one_letter, min_dist_to_receptor).
     """
-    chains = parse_cif_all_atoms(cif_path)
+    chains = parse_cif_atoms(cif_path, ca_only=False)
     if "A" not in chains or "B" not in chains:
         return []
 

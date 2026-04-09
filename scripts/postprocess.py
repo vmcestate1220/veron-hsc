@@ -34,6 +34,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from Bio import SeqIO
+from scripts.utils import parse_cif_atoms
 
 # ──────────────────────────────────────────────
 # Paths
@@ -159,45 +160,6 @@ def extract_ligand_plddt(full_data_path):
 # ──────────────────────────────────────────────
 # 4. Spatial validation — MWSP motif distance
 # ──────────────────────────────────────────────
-def parse_cif_ca_atoms(cif_path):
-    """
-    Parse CA atoms from real AF3 Server mmCIF files.
-
-    AF3 CIF columns (0-indexed):
-      [0] group_PDB  [1] id  [2] type_symbol  [3] label_atom_id
-      [4] label_alt_id  [5] label_comp_id  [6] label_asym_id
-      [7] label_entity_id  [8] label_seq_id  [9] pdbx_PDB_ins_code
-      [10] Cartn_x  [11] Cartn_y  [12] Cartn_z
-      [13] occupancy  [14] B_iso_or_equiv  [15] auth_seq_id
-      [16] auth_asym_id  [17] pdbx_PDB_model_num
-
-    Returns dict: {chain_id: [(seq_id, resname, np.array([x,y,z])), ...]}
-    """
-    chains = {}
-    with open(cif_path) as f:
-        for line in f:
-            if not line.startswith("ATOM"):
-                continue
-            parts = line.split()
-            if len(parts) < 13:
-                continue
-
-            atom_name = parts[3]
-            if atom_name != "CA":
-                continue
-
-            chain = parts[6]   # label_asym_id
-            seq_id = int(parts[8])  # label_seq_id
-            resname = parts[5]  # label_comp_id
-            x = float(parts[10])
-            y = float(parts[11])
-            z = float(parts[12])
-            chains.setdefault(chain, []).append(
-                (seq_id, resname, np.array([x, y, z]))
-            )
-    return chains
-
-
 def compute_motif_distance(cif_path, ligand_seq):
     """
     Compute minimum CA-CA distance (Å) between the MWSP motif on the
@@ -210,14 +172,14 @@ def compute_motif_distance(cif_path, ligand_seq):
     # 1-indexed residue IDs for the motif
     motif_ids = set(range(motif_pos + 1, motif_pos + 1 + len(BINDING_MOTIF)))
 
-    chains = parse_cif_ca_atoms(cif_path)
+    chains = parse_cif_atoms(cif_path, ca_only=True)
     if "A" not in chains or "B" not in chains:
         return float("nan")
 
-    receptor_coords = np.array([c for _, _, c in chains["A"]])
+    receptor_coords = np.array([c for _, _, _, _, c in chains["A"]])
     motif_coords = np.array(
-        [c for sid, _, c in chains["B"] if sid in motif_ids]
-    )
+        [c for _, _, _, sid, c in chains["B"] if sid in motif_ids
+    ])
 
     if len(motif_coords) == 0:
         return float("nan")

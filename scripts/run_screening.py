@@ -27,7 +27,8 @@ import sys
 import json
 
 from Bio import SeqIO
-from Bio.PDB import PDBParser
+
+from scripts.utils import AA3TO1, extract_receptor_sequence
 
 # ── project paths ──────────────────────────────
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,27 +40,7 @@ AF3_OUT_DIR = os.path.join(PROJECT_ROOT, "results", "af3_inputs")
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 CSV_OUTPUT = os.path.join(RESULTS_DIR, "screening_results.csv")
 
-AA3TO1 = {
-    "ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C",
-    "GLN": "Q", "GLU": "E", "GLY": "G", "HIS": "H", "ILE": "I",
-    "LEU": "L", "LYS": "K", "MET": "M", "PHE": "F", "PRO": "P",
-    "SER": "S", "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V",
-}
-
 MODEL_SEEDS = [42, 123, 256, 789, 1024]
-
-
-# ──────────────────────────────────────────────
-# Phase 1: AF3 JSON generation
-# ──────────────────────────────────────────────
-def extract_receptor_sequence(pdb_path):
-    parser = PDBParser(QUIET=True)
-    structure = parser.get_structure("receptor", pdb_path)
-    return "".join(
-        AA3TO1.get(r.get_resname(), "X")
-        for r in structure.get_residues()
-        if r.get_id()[0] == " "
-    )
 
 
 def generate_af3_jsons(receptor_seq, candidates):

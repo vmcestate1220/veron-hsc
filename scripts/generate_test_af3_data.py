@@ -19,17 +19,12 @@ import numpy as np
 from Bio import SeqIO
 from Bio.PDB import PDBParser
 
+from scripts.utils import AA3TO1
+
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RECEPTOR_PDB = os.path.join(PROJECT_ROOT, "data", "processed", "cd34_relaxed.pdb")
 CANDIDATES_FASTA = os.path.join(PROJECT_ROOT, "data", "ligands", "candidates.fasta")
 AF3_OUT_DIR = os.path.join(PROJECT_ROOT, "results", "af3_outputs")
-
-AA3TO1 = {
-    "ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D", "CYS": "C",
-    "GLN": "Q", "GLU": "E", "GLY": "G", "HIS": "H", "ILE": "I",
-    "LEU": "L", "LYS": "K", "MET": "M", "PHE": "F", "PRO": "P",
-    "SER": "S", "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V",
-}
 
 # Plausible AF3 metrics per candidate.
 # Designed so some CH02 variants rank higher than others after
