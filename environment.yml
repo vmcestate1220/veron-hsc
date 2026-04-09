@@ -1,0 +1,17 @@
+name: veron-hsc
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - openmm>=8.5
+  - pdbfixer
+  - biopython>=1.87
+  - pandas
+  - numpy
+  - matplotlib
+  - seaborn
+  - pip
+  - pip:
+    - mhcflurry>=2.2
+    - torch
