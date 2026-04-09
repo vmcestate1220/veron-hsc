@@ -52,6 +52,17 @@ W_IPTM = 0.40
 W_PLDDT = 0.20
 
 
+def detect_data_source(job_dir):
+    """
+    Detect whether AF3 results are from real server or synthetic generation.
+
+    Returns 'synthetic' if .synthetic marker exists, 'af3_server' otherwise.
+    """
+    if os.path.exists(os.path.join(job_dir, ".synthetic")):
+        return "synthetic"
+    return "af3_server"
+
+
 # ──────────────────────────────────────────────
 # Candidate ID mapping (lowercase dir → FASTA ID)
 # ──────────────────────────────────────────────
@@ -292,8 +303,11 @@ def main():
         lig_seq = cand_seqs.get(cand_id, "")
         motif_dist = compute_motif_distance(paths["cif_file"], lig_seq)
 
+        data_source = detect_data_source(paths["dir"])
+
         row = {
             "candidate_id": cand_id,
+            "data_source": data_source,
             "iptm": conf["iptm"],
             "ptm": conf["ptm"],
             "fraction_disordered": conf["fraction_disordered"],
