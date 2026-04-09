@@ -40,7 +40,7 @@ AF3_OUT_DIR = os.path.join(PROJECT_ROOT, "results", "af3_inputs")
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 CSV_OUTPUT = os.path.join(RESULTS_DIR, "screening_results.csv")
 
-MODEL_SEEDS = [42, 123, 256, 789, 1024]
+MODEL_SEEDS = []  # AF3 Server picks random seeds; consolidate_jsons.py also enforces this
 
 
 def generate_af3_jsons(receptor_seq, candidates):
@@ -59,7 +59,7 @@ def generate_af3_jsons(receptor_seq, candidates):
         }
         out_path = os.path.join(AF3_OUT_DIR, f"{job_name}.json")
         with open(out_path, "w") as f:
-            json.dump(payload, f, indent=2)
+            json.dump([payload], f, indent=2)
         paths.append(out_path)
     return paths
 

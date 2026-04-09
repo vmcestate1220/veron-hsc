@@ -16,15 +16,17 @@ LNP-ligand binding pipeline ("veron-hsc") targeting the CD34+ receptor (UniProt 
 
 ## Pipeline Architecture
 
-Three-stage pipeline in `scripts/`:
+Pipeline scripts in `scripts/`:
 
 1. **`preprocess.py`** — Fetches CD34 AlphaFold structure (AF-P28906-F1, v6), truncates to globular/stalk ectodomain (residues 150-290, removing disordered mucin domain), repairs with PDBFixer, energy-minimizes with AMBER14-all + OBC2 implicit solvent. Output: `data/processed/cd34_relaxed.pdb`
-2. **`af3_generator.py`** — Reads receptor sequence from `cd34_relaxed.pdb`, pairs with each candidate in `data/ligands/candidates.fasta`, outputs AF3 Server-format JSONs (5 model seeds each) to `results/af3_inputs/`
-3. **`screening_utils.py`** — MHC-I immunogenicity module. Tiles each candidate into 9-mers, predicts HLA-A*01:01 binding via MHCflurry, flags candidates with any IC50 < 500 nM
-4. **`run_screening.py`** — Master orchestrator: AF3 JSON generation → MHC screening → stealth scoring → prioritized CSV at `results/screening_results.csv`
+2. **`run_screening.py`** — Master orchestrator: AF3 JSON generation (receptor × each candidate ligand) → multi-allele MHC-I screening → stealth scoring → prioritized CSV at `results/screening_results.csv`
+3. **`screening_utils.py`** — MHC-I immunogenicity module. Tiles each candidate into 9-mers, predicts binding across HLA-A\*01:01, A\*02:01, and B\*07:02 via MHCflurry, flags candidates with any IC50 < 500 nM
+4. **`consolidate_jsons.py`** — Merges per-candidate AF3 JSONs into a single bulk upload manifest (`results/veron_master_manifest.json`)
 5. **`ingest_results.py`** — Monitors `results/af3_outputs/` for new `.zip` files, extracts into named sub-directories, validates presence of `summary_confidences*.json` + `.cif`. Idempotent (skips already-extracted).
-6. **`postprocess.py`** — Core quality gate: extracts iPTM/pLDDT/fraction_disordered from AF3 results, computes MWSP motif distance to receptor surface, merges with MHC screening, computes weighted lead score (40% stealth + 40% iPTM + 20% pLDDT), outputs `results/veron_prioritized_leads.csv` and a Stealth-vs-Affinity scatter plot.
-7. **`generate_test_af3_data.py`** — Generates synthetic AF3 Server output zips (summary_confidences + mmCIF) for pipeline validation.
+6. **`postprocess.py`** — Core quality gate: extracts iPTM/pLDDT/fraction_disordered from AF3 results, computes MWSP motif distance to receptor surface, merges with MHC screening, computes weighted lead score (40% stealth + 40% iPTM + 20% pLDDT), tracks data provenance (synthetic vs af3_server), outputs `results/veron_prioritized_leads.csv` and a Stealth-vs-Affinity scatter plot.
+7. **`lead_profile_v10a.py`** — Deep structural + stealth analysis for the V10A lead candidate.
+8. **`generate_test_af3_data.py`** — Generates synthetic AF3 Server output zips (summary_confidences + mmCIF) for pipeline validation. Includes `.synthetic` marker for provenance tracking.
+9. **`utils.py`** — Shared utilities: AA3TO1 mapping, receptor sequence extraction, mmCIF atom parsing.
 
 ## Directory Layout
 
@@ -37,7 +39,7 @@ Three-stage pipeline in `scripts/`:
 - `results/veron_prioritized_leads.csv` — Final master report with weighted lead scores
 - `results/figures/stealth_vs_affinity.png` — Stealth-vs-Affinity scatter plot
 - `results/figures/` — Generated visualizations
-- `notebooks/` — Jupyter notebooks for analysis
+- `tests/` — pytest smoke tests
 
 ## Full pipeline execution
 
