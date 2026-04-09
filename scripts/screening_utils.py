@@ -14,7 +14,11 @@ Usage (as module):
 import pandas as pd
 from mhcflurry import Class1PresentationPredictor
 
-ALLELE = "HLA-A*01:01"
+DEFAULT_ALLELES = [
+    "HLA-A*01:01",
+    "HLA-A*02:01",  # most common worldwide (~25-50% of populations)
+    "HLA-B*07:02",  # common Caucasian allele (~10-15%)
+]
 IC50_THRESHOLD_NM = 500  # nM; below this → immunogenicity flag
 KMER_LEN = 9
 
@@ -24,20 +28,26 @@ def tile_9mers(sequence):
     return [sequence[i : i + KMER_LEN] for i in range(len(sequence) - KMER_LEN + 1)]
 
 
-def screen_candidates(sequences):
+def screen_candidates(sequences, alleles=None):
     """
     Screen a dict of {candidate_id: amino_acid_sequence} for MHC-I binding.
+
+    Predicts binding against all alleles in the panel (default: DEFAULT_ALLELES).
+    Hits and worst-binder stats are aggregated across all alleles.
 
     Returns a DataFrame with per-candidate immunogenicity summary:
       - candidate_id
       - sequence_length
       - n_9mers: total 9-mer windows
-      - n_hits: 9-mers with IC50 < threshold
-      - worst_ic50_nM: lowest (strongest-binding) IC50 among 9-mers
+      - n_hits: 9-mers×alleles with IC50 < threshold
+      - worst_ic50_nM: lowest (strongest-binding) IC50 across all alleles
       - worst_peptide: the 9-mer with lowest IC50
+      - worst_allele: the allele with lowest IC50
       - flagged: True if any hit
-      - all_9mer_details: DataFrame of all per-9mer predictions
     """
+    if alleles is None:
+        alleles = DEFAULT_ALLELES
+
     predictor = Class1PresentationPredictor.load()
 
     all_rows = []
@@ -45,7 +55,6 @@ def screen_candidates(sequences):
 
     for cand_id, seq in sequences.items():
         if len(seq) < KMER_LEN:
-            # Sequence too short for 9-mer tiling — flag as non-screenable
             summary_rows.append(
                 {
                     "candidate_id": cand_id,
@@ -54,25 +63,32 @@ def screen_candidates(sequences):
                     "n_hits": 0,
                     "worst_ic50_nM": float("nan"),
                     "worst_peptide": "",
+                    "worst_allele": "",
                     "flagged": False,
                 }
             )
             continue
 
         ninemers = tile_9mers(seq)
-        preds = predictor.predict(
-            peptides=ninemers,
-            alleles=[ALLELE],
-            verbose=0,
-        )
 
-        preds["candidate_id"] = cand_id
-        preds["position"] = list(range(len(ninemers)))
-        all_rows.append(preds)
+        # Predict across all alleles
+        allele_preds = []
+        for allele in alleles:
+            preds = predictor.predict(
+                peptides=ninemers,
+                alleles=[allele],
+                verbose=0,
+            )
+            preds["candidate_id"] = cand_id
+            preds["position"] = list(range(len(ninemers)))
+            allele_preds.append(preds)
 
-        # Summarize
-        hits = preds[preds["affinity"] < IC50_THRESHOLD_NM]
-        best_binder = preds.loc[preds["affinity"].idxmin()]
+        combined = pd.concat(allele_preds, ignore_index=True)
+        all_rows.append(combined)
+
+        # Summarize across all alleles
+        hits = combined[combined["affinity"] < IC50_THRESHOLD_NM]
+        best_binder = combined.loc[combined["affinity"].idxmin()]
         summary_rows.append(
             {
                 "candidate_id": cand_id,
@@ -81,6 +97,7 @@ def screen_candidates(sequences):
                 "n_hits": len(hits),
                 "worst_ic50_nM": best_binder["affinity"],
                 "worst_peptide": best_binder["peptide"],
+                "worst_allele": best_binder["allele"],
                 "flagged": len(hits) > 0,
             }
         )
