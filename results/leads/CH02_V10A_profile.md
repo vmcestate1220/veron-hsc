@@ -129,3 +129,109 @@ Multi-allele MHCflurry screening (Class1PresentationPredictor) against 4 globall
 2. **MD refinement:** 100 ns explicit-solvent simulation of the V10A:CD34 complex to validate the motif-anchored pose and assess binding free energy
 3. **Backup candidates:** CH02_T1A (rank 2, lead score 0.674) and CH02_M7L (rank 3, lead score 0.660) as fallback leads if HLA-B\*07:02 liability proves clinically relevant
 4. **Cyclization screen:** Evaluate head-to-tail or disulfide cyclization to protect the exposed N-terminus while preserving the MWSP contact geometry
+
+---
+
+## 6. Safety & Off-Target Audit
+
+*Generated 2026-04-16 | Tools: MHCflurry 2.2, BioPython ProtParam, local motif scan*
+
+### 6.1 Sequence Homology & Mimicry Risk
+
+A local scan of `THRPPMWSPAWP` against catalogued human short linear motifs (SLiMs) and functional sequence patterns:
+
+| Motif | Pattern | Result | Notes |
+|-------|---------|--------|-------|
+| Integrin-binding (RGD) | RGD | Clean | No match |
+| Nuclear receptor box (LxxLL) | LxxLL | Clean | No match |
+| SH3 binding (PxxP) | PxxP | **Hit: PAWP (pos 9-12)** | See analysis below |
+| ITAM immunoreceptor (YxxL) | YxxL | Clean | No match |
+| PTB / endocytosis (NPxY) | NPxY | Clean | No match |
+| ER retention (KDEL) | KDEL | Clean | No match |
+| Caspase-3 cleavage (DEVD) | DEVD | Clean | No match |
+| Cytokine receptor (WSxWS) | WSxWS | Clean | No match |
+| Metal-binding (CxxC) | CxxC | Clean | No match |
+| Sortase substrate (LPxTG) | LPxTG | Clean | No match |
+
+**PxxP analysis:** The `PAWP` match at positions 9-12 is a minimal PxxP motif. However, SH3 domain binding requires flanking basic residues in the canonical `RxxPxxP` or `PxxPxR` arrangement and a minimum of ~7 residues for measurable affinity (K_d < 100 &mu;M). The isolated `PAWP` at the C-terminus lacks these features. **Risk: negligible.**
+
+**Compositional flags:**
+- Proline content: 33% (human average ~5%) &mdash; unusual but favorable for conformational rigidity and resistance to beta-sheet aggregation
+- MWSP core is not a known human signaling motif; closest match (WSxWS cytokine receptor motif) differs in both sequence and structural context
+- Met-Trp dipeptide frequency in human surface proteins: ~0.06%
+
+**Mimicry risk: LOW** &mdash; no significant matches to human functional motifs.
+
+### 6.2 MHC-I Gray Zone Sensitivity Analysis
+
+Deep per-peptide MHCflurry analysis of the two flagged alleles (HLA-B\*07:02, HLA-C\*07:01) with full V10A vs WT comparison:
+
+#### HLA-B\*07:02
+
+| Pos | V10A 9-mer | IC50 (nM) | WT 9-mer | IC50 (nM) | &Delta; (nM) | Zone |
+|-----|------------|----------:|----------|----------:|------:|------|
+| 0 | THRPPMWSP | 23,001 | THRPPMWSP | 23,001 | 0 | Clean |
+| 1 | HRPPMWSPA | 16,611 | HRPPMWSPV | 15,121 | +1,490 | Clean (V10A safer) |
+| **2** | **RPPMWSPAW** | **463** | RPPMWSPVW | 823 | **-360** | **Gray zone (V10A riskier)** |
+| 3 | PPMWSPAWP | 18,374 | PPMWSPVWP | 17,913 | +461 | Clean |
+
+**Key finding:** Only 1 of 4 possible 9-mers is affected. The `RPPMWSPAW` neopeptide created by V10A crosses the 500 nM threshold (463 nM), while the WT equivalent `RPPMWSPVW` remains in the weak-binding range (823 nM). This is a *de novo* liability introduced by the mutation.
+
+#### HLA-C\*07:01
+
+| Pos | V10A 9-mer | IC50 (nM) | WT 9-mer | IC50 (nM) | &Delta; (nM) | Zone |
+|-----|------------|----------:|----------|----------:|------:|------|
+| 0 | THRPPMWSP | 16,732 | THRPPMWSP | 16,732 | 0 | Clean |
+| **1** | **HRPPMWSPA** | **449** | **HRPPMWSPV** | **117** | **+332** | **Gray zone (V10A 3.8&times; safer)** |
+| 2 | RPPMWSPAW | 10,558 | RPPMWSPVW | 10,755 | -197 | Clean |
+| 3 | PPMWSPAWP | 29,815 | PPMWSPVWP | 29,639 | +176 | Clean |
+
+**Key finding:** V10A *improves* the HLA-C\*07:01 liability from a strong hit (117 nM in WT) to gray zone (449 nM). The `HRPPMWSPV` peptide in WT is 3.8&times; more immunogenic than V10A's `HRPPMWSPA`. This is an inherited MWSP-core liability that V10A ameliorates.
+
+#### Gray Zone Risk Summary
+
+| Allele | V10A IC50 | WT IC50 | V10A vs WT | Liability Origin | Population Freq |
+|--------|----------:|--------:|------------|------------------|:-----------:|
+| HLA-B\*07:02 | 463 nM | 823 nM | Worsened | **New** (V10A-introduced) | ~10% Caucasian |
+| HLA-C\*07:01 | 449 nM | 117 nM | Improved 3.8&times; | Inherited (MWSP core) | ~25% Caucasian |
+
+Both flagged values fall in the 400&ndash;500 nM range where:
+- MHCflurry IC50 predictions have ~0.7 AUC (limited clinical discriminative power)
+- IC50 < 500 nM does **not** guarantee T-cell recognition *in vivo*
+- Peptide-MHC stability (t&frac12;) and TCR repertoire availability matter more than binding affinity alone
+
+### 6.3 Hydrophobicity & Aggregation Profile
+
+| Property | V10A | WT | &Delta; | Interpretation |
+|----------|-----:|---:|--------:|----------------|
+| Molecular weight | 1,462.7 Da | 1,490.7 Da | -28.0 | Lighter (lost isopropyl &rarr; methyl) |
+| GRAVY score | **-1.142** | -0.942 | -0.200 | V10A more hydrophilic |
+| Net charge (pH 7.0) | +0.49 | +0.49 | 0 | Identical |
+| Isoelectric point | 9.44 | 9.44 | 0 | Identical |
+| Instability index | 87.65 | 87.65 | 0 | Both "unstable" by Guruprasad definition |
+
+**GRAVY interpretation:** V10A scores &minus;1.142, firmly in the hydrophilic range. Peptides with GRAVY > +0.5 are aggregation-prone in aqueous LNP formulations; V10A is well below this threshold. The Val&rarr;Ala substitution reduces local hydrophobicity at position 10 (Kyte-Doolittle: +4.2 &rarr; +1.8), making V10A more LNP-compatible than WT.
+
+**Aggregation risk: VERY LOW.** Contributing factors:
+- Strongly negative GRAVY (&minus;1.14) &mdash; net hydrophilic character
+- 33% proline content acts as a structural breaker, disfavoring &beta;-sheet nucleation
+- No continuous hydrophobic stretches (longest: Met6 at KD +1.9, flanked by prolines)
+
+**Instability index note:** The high instability index (87.65) reflects the Guruprasad dipeptide model, which penalizes Pro-Pro, Trp-Ser, and Pro-Met dipeptides. This metric was calibrated on full-length proteins and is unreliable for 12-residue peptides. For short therapeutic peptides, proteolytic stability is better assessed by *in vitro* serum half-life assays.
+
+**Solubility:** 17% charged residues (His, Arg) &mdash; borderline by Wilkinson-Harrison criteria but adequate for LNP-encapsulated delivery where aqueous solubility is not rate-limiting.
+
+### 6.4 Safety Verdict
+
+| Audit Category | Risk Level | Disposition |
+|----------------|:----------:|-------------|
+| Human protein mimicry | **LOW** | No functional motif matches; PxxP hit is sub-threshold |
+| HLA-A stealth (A\*01:01, A\*02:01) | **CLEAN** | All 9-mers >20,000 nM across both alleles |
+| HLA-B\*07:02 immunogenicity | **GRAY ZONE** | 463 nM (new liability); confirm with T-cell assay |
+| HLA-C\*07:01 immunogenicity | **GRAY ZONE** | 449 nM (improved 3.8&times; vs WT); inherited from MWSP core |
+| LNP aggregation risk | **VERY LOW** | GRAVY &minus;1.14; proline-rich breaker sequence |
+| Solubility | **ADEQUATE** | Borderline charged content; mitigated by LNP encapsulation |
+
+**Overall: CONDITIONALLY CLEARED for advancement.**
+
+The single actionable risk is the *de novo* HLA-B\*07:02 epitope (`RPPMWSPAW`, 463 nM). This requires experimental validation via ELISPOT or T-cell proliferation assay against HLA-B\*07:02+ donor PBMCs before clinical development. All other safety metrics are favorable.
